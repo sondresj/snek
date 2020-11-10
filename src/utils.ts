@@ -5,10 +5,11 @@ export const collides = ([ax, ay]: Position, [bx, by]: Position, size: number = 
 }
 
 export const getRandomPosition = () => {
-    const width = window.innerWidth - SCALE * 2
-    const height = window.innerHeight - SCALE * 2
+    const scaleTwice = SCALE * 2
+    const width = window.innerWidth - scaleTwice
+    const height = window.innerHeight - scaleTwice
     return [
-        Math.floor(Math.random() * width) + SCALE,
-        Math.floor(Math.random() * height) + SCALE,
+        Math.floor(Math.random() * (width - scaleTwice)) + SCALE,
+        Math.floor(Math.random() * (height - scaleTwice)) + SCALE,
     ] as Position
 }

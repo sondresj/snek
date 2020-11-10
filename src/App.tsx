@@ -106,12 +106,14 @@ function App() {
 							entity.tail.map(([left, top], i) => (
 								<div
 									key={`t-${i}`}
-									style={{width: SCALE, height: SCALE, position: 'absolute', left, top, background: 'lime'}}
+									className={'snek snek-body'}
+									style={{width: SCALE, height: SCALE, left, top}}
 								/>)
 							),
 							<div
 								key='player'
-								style={{width: SCALE, height: SCALE, position: 'absolute', left, top, background: 'cyan'}}
+								className={'snek snek-head'}
+								style={{width: SCALE, height: SCALE, left, top}}
 							/>
 						]
 					}
@@ -119,12 +121,10 @@ function App() {
 						const [left, top] = entity.position
 						return <img
 							alt='fruit'
-							className='App-logo'
+							className='fruit'
 							key={`fruit-${id}`}
 							src={logo}
-							width={32}
-							height={32}
-							style={{position: 'absolute', left, top }}
+							style={{left, top, width: SCALE*2, height: SCALE*2 }}
 						/>
 					default: return null
 				}
@@ -134,14 +134,12 @@ function App() {
 
 	return (
 		<div className="App">
-			<header className="App-header">
-				<World
-					systems={systems}
-					initialEntities={initialEntities}
-				>
-					{renderChildren}
-				</World>
-			</header>
+			<World
+				systems={systems}
+				initialEntities={initialEntities}
+			>
+				{renderChildren}
+			</World>
 		</div>
 	)
 }

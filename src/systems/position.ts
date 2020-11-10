@@ -13,7 +13,7 @@ export const position: SnekSystem = (entities) => {
         player: {
             ...entities.player,
             tail: [
-                ...tail.slice(Math.max(tail.length - entities.game.score + 5, 0)),
+                ...tail.slice(Math.max(tail.length - entities.game.score - 5, 0)),
                 head
             ],
             head: move(head, direction, speed)
