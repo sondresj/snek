@@ -16,10 +16,12 @@ export const feed: SnekSystem = (entities) => {
 
     if(!eatenFruit) return entities
 
+    const {width, height} = entities.game
+
     return {
         ...fruits.reduce((res, [id, fruit]) => id === eatenFruit[0] ? res : {...res, [id]: fruit}, {}),
         [++nextFruitId]: {
-            position: getRandomPosition(),
+            position: getRandomPosition(width, height),
             type: 'fruit'
         },
         game: {
@@ -28,5 +30,10 @@ export const feed: SnekSystem = (entities) => {
         },
         player: entities.player,
     }
+}
+
+feed.setup = (entites) => {
+    nextFruitId = Object.entries(entites).reduce((res, [id, entity]) => entity.type === 'fruit' ? Math.max(Number(id), res) : res,0)
+    return entites
 }
 

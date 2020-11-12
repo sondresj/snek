@@ -2,13 +2,14 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import logo from './logo.svg'
 import './App.css'
 import { createWorld, Entity } from './Recs'
-import { InputAction, SnekEntities, SnekEntity, Direction, SnekSystem, SCALE, GameComponents } from './types'
+import { InputAction, SnekEntities, SnekEntity, SnekSystem, SCALE, GameComponents } from './types'
 import { useHotkey } from './Hotkey'
 import { position } from './systems/position'
 import { input } from './systems/input'
 import { feed } from './systems/feed'
 import { oroborus } from './systems/oroborus'
 import { getRandomPosition } from './utils'
+import { resize } from './systems/resize'
 
 const [World, useEntity, useEcsDispatch] = createWorld<SnekEntity, SnekEntities, InputAction>()
 
@@ -16,6 +17,7 @@ const raf = requestAnimationFrame
 const caf = cancelAnimationFrame
 
 const systems: SnekSystem[] = [
+	resize,
 	input,
 	position,
 	feed,
@@ -25,7 +27,7 @@ const systems: SnekSystem[] = [
 const initialEntities: SnekEntities = {
 	player: {
 		type: 'player',
-		head: getRandomPosition(),
+		head: getRandomPosition(window.innerWidth, window.innerHeight),
 		tail: [],
 		speed: 5,
 		direction: [0, 1]
@@ -34,20 +36,38 @@ const initialEntities: SnekEntities = {
 		type: 'game',
 		score: 0,
 		start: Date.now(),
+		width: window.innerWidth,
+		height: window.innerHeight
 	},
 	0: {
 		type: 'fruit',
-		position: getRandomPosition()
-	}
+		position: getRandomPosition(window.innerWidth, window.innerHeight),
+	},
+	1: {
+		type: 'fruit',
+		position: getRandomPosition(window.innerWidth, window.innerHeight),
+	},
+	2: {
+		type: 'fruit',
+		position: getRandomPosition(window.innerWidth, window.innerHeight),
+	},
+	3: {
+		type: 'fruit',
+		position: getRandomPosition(window.innerWidth, window.innerHeight),
+	},
+	4: {
+		type: 'fruit',
+		position: getRandomPosition(window.innerWidth, window.innerHeight),
+	},
 }
 
-const hotkeys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown']
+const hotkeys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Enter']
 
 function GameLoop() {
-	const directionRef = useRef<Direction>()
-	const gameRef = useRef<Entity<GameComponents>>()
+	const nextInputActionRef = useRef<InputAction>()
 	const dispatch = useEcsDispatch()
-
+	
+	const gameRef = useRef<Entity<GameComponents>>()
 	const game = useEntity('game')
 	useEffect(() => {
 		gameRef.current = game
@@ -55,20 +75,22 @@ function GameLoop() {
 
 	useHotkey(hotkeys, useCallback((event: KeyboardEvent) => {
 		switch(event.key){
-			case 'ArrowUp': directionRef.current = [0, -1]; break
-			case 'ArrowDown': directionRef.current = [0, 1]; break
-			case 'ArrowLeft': directionRef.current = [-1, 0]; break
-			case 'ArrowRight': directionRef.current = [1, 0]; break
+			case 'ArrowUp': nextInputActionRef.current = {direction: [0, -1]}; break
+			case 'ArrowDown': nextInputActionRef.current = {direction: [0, 1]}; break
+			case 'ArrowLeft': nextInputActionRef.current = {direction: [-1, 0]}; break
+			case 'ArrowRight': nextInputActionRef.current = {direction: [1, 0]}; break
+			case 'Enter': nextInputActionRef.current = {direction: [1, 0], restart: true}; break;
 		}
 	}, []))
 
 	useEffect(() => {
 		let handle: number | null = null
 		const loop = () => {
-			dispatch(directionRef.current)
-			directionRef.current = undefined
-			if(!gameRef.current?.end)
-				handle = raf(loop)
+			if(!gameRef.current?.end || nextInputActionRef.current?.restart)
+				dispatch(nextInputActionRef.current)
+			nextInputActionRef.current = undefined
+			// if(!gameRef.current?.end)
+			handle = raf(loop)
 		}
 		handle = raf(loop)
 		return () => {
@@ -124,7 +146,8 @@ function App() {
 							className='fruit'
 							key={`fruit-${id}`}
 							src={logo}
-							style={{left, top, width: SCALE*2, height: SCALE*2 }}
+							style={{left, top, width: SCALE, height: SCALE }}
+							
 						/>
 					default: return null
 				}

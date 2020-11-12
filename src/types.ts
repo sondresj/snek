@@ -21,6 +21,8 @@ export type GameComponents = {
     start: number
     end?: number
     score: number
+    width: number
+    height: number
 }
 
 export type SnekEntity = Entity<PlayerComponents | FruitComponents | GameComponents>
@@ -29,7 +31,10 @@ export type SnekEntities = Record<number, Entity<FruitComponents>> & {
     player: PlayerComponents
 }
 
-export type InputAction = Direction | undefined
+export type InputAction = {
+    direction: Direction
+    restart?: boolean
+} | undefined
 
 export type SnekSystem = System<SnekEntity, SnekEntities, InputAction>
 
